@@ -1,97 +1,51 @@
 /* =========================
-   BASE MINI APP SCRIPT
+   BASE MINI APP (OFFICIAL FLOW)
 ========================= */
 
-console.log("Base Mini App Script Loaded");
-console.log("window.ethereum =", window.ethereum);
-
-
-/* =========================
-   DETECT BASE APP ENV
-========================= */
-function isBaseApp() {
-  const p = window.ethereum;
-  return p && (p.isCoinbaseWallet || p.isCoinbaseBrowser);
-}
-
-
-/* =========================
-   LOAD BASE PROFILE
-========================= */
 async function loadBaseProfile() {
 
   const status = document.getElementById("status");
   const profile = document.getElementById("profile");
 
-  if (!isBaseApp()) {
-    status.innerText = "🌐 Open inside Base App";
-    return;
-  }
-
   try {
 
-    const provider = window.ethereum;
+    // ✅ Frame context dari Base App
+    const frame = window.frame;
 
-    /* =========================
-       REQUEST WALLET ADDRESS
-    ========================= */
-    const accounts = await provider.request({
-      method: "eth_requestAccounts"
-    });
-
-    const address = accounts[0];
-
-    console.log("Wallet Address:", address);
-
-    const ethProvider = new ethers.BrowserProvider(provider);
-
-    /* =========================
-       ENS / BASENAME LOOKUP
-    ========================= */
-
-    let ensName = null;
-    let avatar = null;
-
-    try {
-
-      ensName = await ethProvider.lookupAddress(address);
-      console.log("ENS Name:", ensName);
-
-      if (ensName) {
-        const resolver = await ethProvider.getResolver(ensName);
-        avatar = await resolver?.getText("avatar");
-      }
-
-    } catch (e) {
-      console.log("ENS lookup failed:", e);
+    if (!frame) {
+      status.innerText = "🌐 Not inside Base App";
+      return;
     }
 
-    /* =========================
-       UPDATE UI
-    ========================= */
+    // 🔥 ambil context user resmi
+    const context = await frame.context();
+
+    console.log("Base Context:", context);
+
+    /*
+      Struktur biasanya:
+      context.user.username
+      context.user.displayName
+      context.user.pfpUrl
+      context.user.address
+    */
+
+    const user = context.user;
 
     status.innerText = "✅ Base Mini App Active";
 
     profile.innerHTML = `
-      <div style="margin-top:10px">
-        ${avatar ? `<img src="${avatar}" width="70"/>` : ""}
-        <p><b>${ensName || address.slice(0,6)+"..."+address.slice(-4)}</b></p>
-        <small>${address}</small>
+      <div>
+        ${user.pfpUrl ? `<img src="${user.pfpUrl}" width="70"/>` : ""}
+        <p><b>${user.displayName || user.username}</b></p>
+        <small>${user.address}</small>
       </div>
     `;
 
   } catch (err) {
-
     console.error(err);
-    status.innerText = "❌ Failed load profile";
-
+    status.innerText = "❌ Failed load Base profile";
   }
 }
 
-
-/* =========================
-   AUTO RUN WHEN OPENED
-========================= */
-window.onload = () => {
-  loadBaseProfile();
-};
+window.onload = loadBaseProfile;
