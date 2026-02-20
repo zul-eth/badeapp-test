@@ -1,63 +1,72 @@
 /* =========================
-   BASE MINI APP (OFFICIAL SDK)
+   BASE MINI APP (OFFICIAL PROVIDER FLOW)
 ========================= */
 
-/*
-  SDK resmi Base Mini App
-  (Frame SDK)
-*/
-import { sdk } from "https://esm.sh/@farcaster/frame-sdk";
-
-console.log("Frame SDK Loaded");
+console.log("Script Loaded");
+console.log("window.ethereum =", window.ethereum);
 
 /* =========================
-   LOAD PROFILE FROM BASE CONTEXT
+   DETECT BASE MINI APP
 ========================= */
-async function loadProfile(){
+function isBaseMiniApp() {
+  const p = window.ethereum;
+  return p && (p.isCoinbaseWallet || p.isCoinbaseBrowser);
+}
+
+/* =========================
+   MAIN CHECK FUNCTION
+========================= */
+async function checkEnv() {
 
   const status = document.getElementById("status");
-  const profile = document.getElementById("profile");
 
-  try{
+  // ❌ bukan Base App
+  if (!isBaseMiniApp()) {
+    status.innerText = "🌐 Running in normal browser";
+    return;
+  }
 
-    // 🔥 ambil context resmi dari Base App
-    const context = await sdk.context;
+  status.innerText = "✅ Base Mini App Active";
 
-    console.log("Base Context:", context);
+  try {
 
-    if(!context || !context.user){
-      status.innerText = "🌐 Not opened via Base App";
+    /* =========================
+       AMBIL USER ADDRESS
+    ========================= */
+
+    const accounts = await window.ethereum.request({
+      method: "eth_accounts"
+    });
+
+    console.log("Accounts:", accounts);
+
+    if (!accounts || !accounts.length) {
+      status.innerText = "⚠️ Wallet not detected";
       return;
     }
 
-    const user = context.user;
+    const address = accounts[0];
 
-    /*
-      Struktur dari Base:
-      user.displayName
-      user.username
-      user.pfpUrl
-      user.fid
-      user.address
-    */
+    console.log("Wallet Address:", address);
 
-    status.innerText = "✅ Base Mini App Active";
+    status.innerText =
+      "👤 " +
+      address.slice(0,6) +
+      "..." +
+      address.slice(-4);
 
-    profile.innerHTML = `
-      <div>
-        ${user.pfpUrl ? `<img src="${user.pfpUrl}" width="70"/>` : ""}
-        <p><b>${user.displayName || user.username}</b></p>
-        <small>${user.username}</small>
-      </div>
-    `;
-
-  }catch(err){
+  } catch (err) {
     console.error(err);
-    status.innerText = "❌ Failed load profile";
+    status.innerText = "❌ Error reading wallet";
   }
 }
 
-window.loadProfile = loadProfile;
+/* =========================
+   EXPOSE TO HTML BUTTON
+========================= */
+window.checkEnv = checkEnv;
 
-/* AUTO LOAD */
-loadProfile();
+/* =========================
+   AUTO RUN ON LOAD
+========================= */
+window.onload = checkEnv;
