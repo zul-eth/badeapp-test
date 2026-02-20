@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <!-- Base Mini App Meta -->
+  <meta name="base:app_id" content="6998794a820ae5633e55087e" />
+
+  <title>My Base Mini App</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background:#0f172a;
+      color:white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:100vh;
+      margin:0;
+    }
+    .card{
+      background:#1e293b;
+      padding:24px;
+      border-radius:12px;
+      text-align:center;
+    }
+    button{
+      padding:10px 16px;
+      border-radius:8px;
+      border:none;
+      cursor:pointer;
+      margin-top:12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>🚀 Base Mini App Minimal</h2>
+    <p id="status">Loading...</p>
+    <button onclick="checkEnv()">Check Base App</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
