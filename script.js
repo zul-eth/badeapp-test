@@ -1,20 +1,28 @@
-import { sdk } from "https://esm.sh/@farcaster/miniapp-sdk";
-
 const status = document.getElementById("status");
 
 async function init() {
+  if (!window.ethereum) {
+    status.innerText = "❌ No provider";
+    return;
+  }
 
-  // 🔥 WAJIB sesuai docs
-  await sdk.actions.ready();
+  try {
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts"
+    });
 
-  status.innerText = "Mini App Ready";
+    const address = accounts[0];
 
-  // wallet tetap dari provider Base
-  const accounts = await window.ethereum.request({
-    method: "eth_accounts"
-  });
+    status.innerHTML = `
+      ✅ Mini App Active <br>
+      👤 ${address.slice(0,6)}...${address.slice(-4)}
+    `;
 
-  console.log("Accounts:", accounts);
+    console.log("Wallet:", address);
+  } catch (e) {
+    console.log(e);
+    status.innerText = "❌ Wallet error";
+  }
 }
 
 init();
