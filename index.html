@@ -1,55 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <!-- Base Mini App Meta -->
-  <meta name="base:app_id" content="6998794a820ae5633e55087e" />
+<!-- Base Mini App -->
+<meta name="base:app_id" content="6998794a820ae5633e55087e"/>
 
-  <title>My Base Mini App</title>
+<title>Base Mini App Profile</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background:#0f172a;
-      color:white;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      height:100vh;
-      margin:0;
-    }
-    .card{
-      background:#1e293b;
-      padding:24px;
-      border-radius:12px;
-      text-align:center;
-    }
-    button{
-      padding:10px 16px;
-      border-radius:8px;
-      border:none;
-      cursor:pointer;
-      margin-top:12px;
-    }
-  </style>
+<style>
+body{
+  font-family:Arial, sans-serif;
+  background:#0f172a;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+  margin:0;
+}
+.card{
+  background:#1e293b;
+  padding:24px;
+  border-radius:12px;
+  text-align:center;
+  width:260px;
+}
+img{
+  border-radius:50%;
+  margin-top:10px;
+}
+button{
+  padding:10px 16px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  margin-top:12px;
+}
+</style>
 </head>
 <body>
 
-  <div class="card">
-    <h2>🚀 Base Mini App Minimal</h2>
-    <p id="status">Loading...</p>
-    <button onclick="checkEnv()">Check Base App</button>
-  </div>
+<div class="card">
+  <h2>🚀 Base Profile</h2>
+  <p id="status">Loading...</p>
+  <div id="profile"></div>
+  <button onclick="loadBaseProfile()">Load Profile</button>
+</div>
 
-  <script src="script.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-  <script>
-    eruda.init();
-    console.log("ERUDA ACTIVE");
-    console.log("window.base =", window.base);
-    console.log("window.ethereum =", window.ethereum);
-  </script>
+<!-- ethers.js -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.1/dist/ethers.umd.min.js"></script>
+
+<!-- eruda devtools -->
+<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+
+<script>
+eruda.init();
+
+console.log("window.ethereum =", window.ethereum);
+
+/* =========================
+   DETECT BASE MINI APP
+========================= */
+function isBaseApp(){
+  const p = window.ethereum;
+  return p && (p.isCoinbaseWallet || p.isCoinbaseBrowser);
+}
+
+/* =========================
+   MAIN PROFILE LOADER
+========================= */
+async function loadBaseProfile(){
+
+  const status = document.getElementById("status");
+  const profile = document.getElementById("profile");
+
+  if(!isBaseApp()){
+    status.innerText = "🌐 Open inside Base App";
+    return;
+  }
+
+  try{
+
+    const provider = window.ethereum;
+
+    // 🔐 ambil wallet address
+    const accounts = await provider.request({
+      method:"eth_requestAccounts"
+    });
+
+    const address = accounts[0];
+
+    console.log("Wallet:", address);
+
+    const ethProvider = new ethers.BrowserProvider(provider);
+
+    /* =========================
+       ENS / BASENAME LOOKUP
+    ========================= */
+
+    let ensName = null;
+    let avatar = null;
+
+    try{
+      ensName = await ethProvider.lookupAddress(address);
+      console.log("ENS:", ensName);
+
+      if(ensName){
+        const resolver = await ethProvider.getResolver(ensName);
+        avatar = await resolver?.getText("avatar");
+      }
+
+    }catch(e){
+      console.log("ENS lookup failed", e);
+    }
+
+    /* =========================
+       UI RENDER
+    ========================= */
+
+    status.innerText = "✅ Base Mini App Active";
+
+    profile.innerHTML = `
+      <div style="margin-top:10px">
+        ${avatar ? `<img src="${avatar}" width="70"/>` : ""}
+        <p><b>${ensName || address.slice(0,6)+"..."+address.slice(-4)}</b></p>
+        <small>${address}</small>
+      </div>
+    `;
+
+  }catch(err){
+    console.error(err);
+    status.innerText = "❌ Failed load profile";
+  }
+}
+
+/* =========================
+   AUTO LOAD ON OPEN
+========================= */
+window.onload = loadBaseProfile;
+</script>
+
 </body>
 </html>
