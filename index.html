@@ -1,17 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="base:app_id" content="6998794a820ae5633e55087e" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="base:app_id" content="6998794a820ae5633e55087e"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 
 <title>Mini App</title>
+
+<style>
+body{
+  margin:0;
+  background:#0f172a;
+  color:#fff;
+  font-family:Arial;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.card{
+  background:#1e293b;
+  padding:24px;
+  border-radius:12px;
+  text-align:center;
+}
+</style>
 </head>
+
 <body>
 
-<h2>Base Mini App</h2>
-<p id="status">Loading...</p>
+<div class="card">
+  <h2>🚀 Base Mini App Minimal</h2>
+  <p id="status">Loading...</p>
+</div>
 
 <script type="module" src="script.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<script>
+eruda.init();
+console.log("ERUDA ACTIVE");
+</script>
 
 </body>
 </html>
