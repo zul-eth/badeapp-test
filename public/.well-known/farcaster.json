@@ -1,0 +1,12 @@
+{
+  "miniapp": {
+    "version": "1",
+    "name": "Test",
+    "iconUrl": "https://badeapp-test.vercel.app/icon.png",
+    "homeUrl": "https://badeapp-test.vercel.app",
+    "imageUrl": "https://badeapp-test.vercel.app/preview.png",
+    "buttonTitle": "Open",
+    "splashImageUrl": "https://badeapp-test.vercel.app/splash.png",
+    "splashBackgroundColor": "#0f172a"
+  }
+}
